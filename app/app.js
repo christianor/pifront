@@ -6,6 +6,7 @@ var cors = require('cors');
 var processes = [];
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var connectedUsers = 0;
 
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
@@ -20,14 +21,18 @@ function loadProcesses() {
   }); 
 }
  
-setInterval(loadProcesses, 2000);
+setInterval(function() { 
+    loadProcesses();
+    if (connectedUsers > 0) 
+      io.emit(processes);
+  }, 2000);
 
 app.get('/api/ps', function (req, res) {
   res.json(processes);    
 });
 
 io.on('connection', function() {
-  console.log("a client connected");
+  connectedUsers++;
 });
 
 var server = http.listen(3000, function () {

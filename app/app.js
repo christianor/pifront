@@ -23,21 +23,26 @@ function loadProcesses() {
  
 setInterval(function() { 
     loadProcesses();
-    if (connectedUsers > 0) 
+    if (connectedUsers > 0) {
+      console.log('emitting processes to ' + connectedUsers + ' connected users');
       io.sockets.emit('processes', processes);
+    }
   }, 2000);
 
 app.get('/api/ps', function (req, res) {
   res.json(processes);    
 });
 
-io.on('connection', function() {
+io.on('connection', function (socket) {
+  console.log('client connected');
   connectedUsers++;
+  socket.on('disconnect', function() {
+    console.log('client disconnected');
+    connectedUsers--;
+  });
 });
 
-io.on('disconnect', function() {
-  connectedUsers--;
-});
+
 
 var server = http.listen(3000, function () {
   console.log('pi monitor listening on port 3000');

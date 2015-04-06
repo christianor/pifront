@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 	},
 	sshexec: {
 	  npm_install: {
-	    command: 'npm install /home/pi/work/',
+	    command: 'npm install --prefix /home/pi/work/',
 	    options: {
 	      config: 'piserver'
 	    }

@@ -3,7 +3,7 @@ var app = express();
 var exec = require('child_process').exec;
 var cors = require('cors');
 // the running processes
-var processes = null;
+var processes = [];
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
@@ -15,11 +15,12 @@ loadProcesses();
 
 function loadProcesses() {
   exec('ps aux', function (err, stdout, stderr) {
+    processes.length = 0;
     processes = parsePsStdout(stdout);
   }); 
 }
  
-setInterval(loadProcesses, 30000);
+setInterval(loadProcesses, 2000);
 
 app.get('/api/ps', function (req, res) {
   res.json(processes);    
@@ -36,7 +37,7 @@ var server = http.listen(3000, function () {
 });
 
 function parsePsStdout(stdout) {
-  var processes = [];
+  var cur_processes = [];
   var regex = /([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\n]+)/;
   
   var outLines = stdout.toString().split('\n');
@@ -44,11 +45,11 @@ function parsePsStdout(stdout) {
     var match = outLines[i].match(regex);
     if (match) {
       var process = new Process(match[11], match[1], match[2], match[9], match[3], match[4]);
-      processes.push(process);
+      cur_processes.push(process);
     }
   }
 
-  return processes;
+  return cur_processes;
 }
 
 function Process(name, user, pid, startTime, pCPU, pMemory) {

@@ -24,7 +24,7 @@ function loadProcesses() {
 setInterval(function() { 
     loadProcesses();
     if (connectedUsers > 0) 
-      io.emit(processes);
+      io.sockets.emit('processes', processes);
   }, 2000);
 
 app.get('/api/ps', function (req, res) {
@@ -33,6 +33,10 @@ app.get('/api/ps', function (req, res) {
 
 io.on('connection', function() {
   connectedUsers++;
+});
+
+io.on('disconnect', function() {
+  connectedUsers--;
 });
 
 var server = http.listen(3000, function () {

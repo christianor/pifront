@@ -8,39 +8,20 @@
  * Controller of the pifrontApp
  */
 angular.module('pifrontApp')
-  .controller('PsCtrl', ['$scope', 'psService', function ($scope, psService) {
+  .controller('PsCtrl', ['$scope', 'PsService', function ($scope, PsService) {
     $scope.predicate = '-pCPU';
     $scope.reverse = false;
+    PsService.loadProcesses();
 
-  	psService.getRunningProcesses(function (data) {
-      $scope.processes = data;
-      $scope.pCPU_sum = psService.calc_pCPU_Sum(data);
-  	});
-
-    window.setTimeout(function() {
-      var socket = io();
-      socket.on('processes', function(processes) {
-        $scope.$apply(function() { 
-          $scope.processes = processes;
-          $scope.pCPU_sum = psService.calc_pCPU_Sum(processes);
-        });
+    $scope.$on('PsService_changed', function() {
+      $scope.$apply(function() {
+        $scope.pCPU_sum = PsService.pCPU_sum;
+        $scope.processes = PsService.processes; 
       });
-    }, 3000);
+    });
+    $scope.$on('PsService_init', function() {
+      $scope.pCPU_sum = PsService.pCPU_sum;
+      $scope.processes = PsService.processes; 
+    });
 
-  }])
-  .service('psService', function ($http) {
-  	return {
-    	getRunningProcesses: function (success) {
-      	$http.get('/api/ps').success(success);
-    	},
-      calc_pCPU_Sum: function (processes) {
-        var pCPU_sum = 0;
-
-        angular.forEach(processes, function(el, index){
-          pCPU_sum += el.pCPU;
-        });
-
-        return Math.round(pCPU_sum).toFixed(2);
-      }
-  	}
-  });
+  }]);

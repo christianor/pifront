@@ -1,8 +1,8 @@
 <h1>Übersicht über die laufenden Prozesse</h1>
 <h1 style="background-color: black;color:white;padding:10px">~ ps aux</h1>
 CPU Auslastung gesamt: {{ pCPU_sum}}%
-<table class="table">
-<tr><th>Prozess</th><th><a href="" ng-click="predicate = '-pCPU'; reverse = false">% CPU</a></th><th><a href="" ng-click="predicate = '-pMemory'; reverse = false">% Speicher</a></th></tr>
+<table class="table" style="table-layout: fixed;word-wrap: break-word;">
+<tr><th style="width:60%">Prozess</th><th><a href="" ng-click="predicate = '-pCPU'; reverse = false">% CPU</a></th><th><a href="" ng-click="predicate = '-pMemory'; reverse = false">% Speicher</a></th></tr>
 <tr ng-repeat="process in processes | orderBy:predicate:reverse">
 	<td>{{ process.name }}</td><td>{{ process.pCPU }}</td><td>{{ process.pMemory }}</td>
 </tr>

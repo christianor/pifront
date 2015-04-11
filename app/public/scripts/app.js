@@ -30,6 +30,7 @@ var pifrontApp = angular
   .controller('mainCtrl', ['$scope', 'PsService', 'TempService', function ($scope, PsService, TempService) {
     window.setTimeout(function() {
       PsService.listen();
+      TempService.listen();
     }, 2000);
     
     $scope.$on('PsService_changed', function() {
@@ -43,6 +44,13 @@ var pifrontApp = angular
     $scope.$on('TempService_init', function() {
       $scope.temp = TempService.temp;
     });
+    $scope.$on('TempService_changed', function() {
+      $scope.$apply(function(){
+         $scope.temp = TempService.temp;
+      });
+    });
+    // init the temperature
+    // the processes are initiated currently by the ps controller
     TempService.loadTemperature();
   }])
   .factory('PsService', function ($http, $rootScope) {
@@ -50,24 +58,20 @@ var pifrontApp = angular
       processes: undefined,
       pCPU_sum: undefined,
       listen: function() {
-        console.log('started listening to process changes');
         var self = this;
         var socket = io();
         socket.on('processes', function(data) { 
           self.processes = data;
           self.pCPU_sum = self.calc_pCPU_Sum(data);
           $rootScope.$broadcast('PsService_changed');
-          console.log('refreshed processes');
         });
       },
       loadProcesses: function() {
-        console.log('initializing processes');
         var self = this;
         $http.get('/api/ps').success(function (data) {
           self.processes = data;
           self.pCPU_sum = self.calc_pCPU_Sum(data);
           $rootScope.$broadcast('PsService_init');
-          console.log('initialized processes');
         });
       },
       calc_pCPU_Sum: function (processes) {
@@ -88,6 +92,14 @@ var pifrontApp = angular
         $http.get('/api/temp').success(function (data){
           self.temp = data;
           $rootScope.$broadcast('TempService_init');
+        });
+      },
+      listen: function() {
+        var self = this;
+        var socket = io();
+        socket.on('temp', function(data) {
+          self.temp = data;
+          $rootScope.$broadcast('TempService_changed');
         });
       }
     }

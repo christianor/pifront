@@ -4,6 +4,7 @@ var exec = require('child_process').exec;
 var cors = require('cors');
 // the running processes
 var processes = [];
+var temperature = '';
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var connectedUsers = 0;
@@ -13,12 +14,21 @@ app.use(cors());
 
 // at the start of the app init the processes
 loadProcesses();
+loadTemperature();
 
 function loadProcesses() {
   exec('ps aux', function (err, stdout, stderr) {
     processes.length = 0;
     processes = parsePsStdout(stdout);
   }); 
+}
+
+function loadTemperature() {
+  exec('/opt/vc/bin/vcgencmd measure_temp', function (err, stdout, stderr){
+    if (err) return;
+
+    temperature = stdout.toString().split('=')[1];
+  });
 }
  
 setInterval(function() { 
@@ -31,6 +41,10 @@ setInterval(function() {
 
 app.get('/api/ps', function (req, res) {
   res.json(processes);    
+});
+
+app.get('/api/temp', function (req, res) {
+  res.json(temperature);    
 });
 
 io.on('connection', function (socket) {

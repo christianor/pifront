@@ -15,12 +15,10 @@ angular.module('pifrontApp')
 
     $scope.$on('PsService_changed', function() {
       $scope.$apply(function() {
-        $scope.pCPU_sum = PsService.pCPU_sum;
         $scope.processes = PsService.processes; 
       });
     });
     $scope.$on('PsService_init', function() {
-      $scope.pCPU_sum = PsService.pCPU_sum;
       $scope.processes = PsService.processes; 
     });
 

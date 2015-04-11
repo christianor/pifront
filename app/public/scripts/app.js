@@ -27,7 +27,7 @@ var pifrontApp = angular
         redirectTo: '/processes'
       });
   })
-  .controller('mainCtrl', ['$scope', 'PsService', function ($scope, PsService) {
+  .controller('mainCtrl', ['$scope', 'PsService', 'TempService', function ($scope, PsService, TempService) {
     window.setTimeout(function() {
       PsService.listen();
     }, 2000);
@@ -40,6 +40,10 @@ var pifrontApp = angular
     $scope.$on('PsService_init', function() {
       $scope.pCPU_sum = PsService.pCPU_sum;
     });
+    $scope.$on('TempService_init', function() {
+      $scope.temp = TempService.temp;
+    });
+    TempService.loadTemperature();
   }])
   .factory('PsService', function ($http, $rootScope) {
     return {
@@ -73,7 +77,18 @@ var pifrontApp = angular
           pCPU_sum += el.pCPU;
         });
 
-        return Math.round(pCPU_sum).toFixed(2);
+        return Math.round(pCPU_sum * 100.0) / 100.0;
+      }
+    }
+  }).factory('TempService', function ($http, $rootScope){
+    return {
+      temp: undefined,
+      loadTemperature: function() {
+        var self = this;
+        $http.get('/api/temp').success(function (data){
+          self.temp = data;
+          $rootScope.$broadcast('TempService_init');
+        });
       }
     }
   });

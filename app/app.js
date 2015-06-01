@@ -32,9 +32,9 @@ function loadTemperature() {
 }
  
 setInterval(function() { 
-    loadProcesses();
-    loadTemperature();
     if (connectedUsers > 0) {
+      loadProcesses();
+      loadTemperature();
       console.log('emitting processes to ' + connectedUsers + ' connected users');
       io.sockets.emit('processes', processes);
       io.sockets.emit('temp', temperature);
